@@ -281,13 +281,6 @@ public class Loader {
 		
 		return tree;
 	}
-	
-
-	
-	public static void main(String[] args) {
-		//Loader loader = new Loader();
-		Decoder decoder = new Decoder();
-	}
 
 
 	public Map<String, String> getCountMap() {
