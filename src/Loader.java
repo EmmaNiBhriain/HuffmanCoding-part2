@@ -222,9 +222,9 @@ public class Loader {
 		StringBuffer header = buildHeader(node1, tempHeader);
 		
 		if(DEBUGHEADER == true) System.out.println(header.toString());
-		//filewriter2.write(header.toString());
+		filewriter2.write(header.toString());
 		
-		//filewriter2.write(divider);
+		filewriter2.write(divider);
 		
 		//Write the character code for each letter
 		int charCount = 0;
