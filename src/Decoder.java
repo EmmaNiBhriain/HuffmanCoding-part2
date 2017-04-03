@@ -11,9 +11,14 @@ public class Decoder {
 	Loader loader = new Loader();
 	
 	//FileWriter filewriter3 = new FileWriter();
-	private Node buildingNode = new Node("start", 0, null,null);
-	private Node currentNode = new Node("start", 0, null, null);
+	private Node currentNode = new Node(null, 0, null, null);
 	private File decodedFile = new File("DecodedData.dat");
+	
+	private boolean leaf = false;
+	
+	private boolean DEBUGTREE = true;
+	private boolean DEBUGNODE = false;
+
 	
 	public Decoder(){
 		try {
@@ -36,11 +41,8 @@ public class Decoder {
 		FileInputStream inByteStream = new FileInputStream(aFile);
 		DataInputStream inDataStream = new DataInputStream(inByteStream);
 		
-		//BufferedReader buffer = new BufferedReader(new FileReader("EncodedData.dat"));		
-		//int charIndex;// = inDataStream.read();
 		char nextCharacter = ' ';
 		char decodedChar;
-		currentNode = loader.getNode1();
 		boolean message = false;
 		boolean tree = false;
 		try {
@@ -48,24 +50,25 @@ public class Decoder {
 				nextCharacter = (char) inDataStream.read();
 				if((nextCharacter != '/')&&(message==false)){
 					if(nextCharacter == '0'){
-						System.out.println("not leaf");
 						Node markerNode = new Node("not leaf", 0, null, null);
-						if((buildingNode.getLeftChild()==null)&&(buildingNode.getRightChild()==null)){
-							buildingNode.setLeftChild(markerNode);
-						}
-						else if((buildingNode.getLeftChild()!=null)&&(buildingNode.getRightChild()==null)){
-							buildingNode.setRightChild(markerNode);
-						}
-						else if((buildingNode.getLeftChild()==null)&&(buildingNode.getRightChild()!=null)){
-							buildingNode.setLeftChild(markerNode);
+						if(DEBUGNODE == true)System.out.println("not leaf");
+						leaf = false;
+						//traverse preorder
+						currentNode = buildTree(currentNode, markerNode);	
 						}
 						
-					}
 					else{
 						int temp = (int) inDataStream.read();
-						Node node = new Node(Character.toString(nextCharacter), 1, null, null);
-						System.out.println(node.toString());
+						Node validNode = new Node(Character.toString(nextCharacter), 1, null, null);
+						leaf = true;
+						currentNode = buildTree(currentNode, validNode);
 					}
+				}
+				
+				if(nextCharacter == '/'){
+					System.out.println("End of header");
+					message = true;		
+					if(DEBUGTREE == true) Node.print(currentNode, " ");
 				}
 				
 				if(message == true){
@@ -93,22 +96,47 @@ public class Decoder {
 					}
 				}
 				
-				if(nextCharacter == '/'){
-					System.out.println("End of header");
-					message = true;					
-				}
+				
+				
 			}
-			System.out.println("File decoded successfully");
-		} catch (IOException e) {
+			System.out.println("File decoded successfully"); 
+		}
+	catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	public void treeBuilder(){
-		//create a tree 
-		Node node = new Node("root",0,null,null);
-		//if(nextCharacter == '0');
+	public Node buildTree(Node node, Node addedNode){
+		System.out.println("adding a leaf");
+		
+		
+		if(node.letter == null)
+			node = addedNode;
+		else{
+			if((node.getLeftChild()!= null)&&(node.getRightChild()!=null)){
+				if(node.getLeftChild().frequency != 1){
+					buildTree(node.getLeftChild(), addedNode);
+				}
+				else if(node.getRightChild().frequency != 1){
+					buildTree(node.getRightChild(), addedNode);
+				}
+			}
+			if((node.getLeftChild()!= null)&&(node.getRightChild()==null))
+				node.setRightChild(addedNode);
+			
+			if((node.getLeftChild()==null)&&(node.getRightChild()==null)){
+				node.setLeftChild(addedNode);
+			}
+			if(node.getLeftChild()!= null){
+				if(node.getLeftChild().frequency != 1)
+					buildTree(node.getLeftChild(), addedNode);
+			}
+			
+			
+		}
+		return node;
+
 	}
 	
 	public void decodeMessage(){
